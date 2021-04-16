@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+  mongo:
+    image: "mongo:4.4.3"
+    container_name: mongo-lib
+    restart: always
+    networks:
+      - mongo-lib-network
+
+  test:
+    build: 
+      context: .
+      target: test
+    image: "test_mongo-lib:latest"
+    container_name: test_mongo_lib
+    networks:
+      - mongo-lib-network
+    depends_on:
+      - mongo
+    environment:
+      - LOG_LEVEL=error
+      - MONGO_URL=mongo-lib:27017
+      - WAIT_HOSTS=mongo-lib:27017
+
+networks:
+  mongo-lib-network:
+    driver: bridge

@@ -1,0 +1,25 @@
+steps:
+  - label: "Tests"
+    key: "test"
+    command:
+      - "docker-compose build --pull"
+      - "docker-compose run test"
+      - "docker-compose down"
+    agents:
+      queue: "docker"
+
+  - label: "Publish Library"
+    key: "publish"
+    command: >
+      git config --global user.email "sdom@involves.com";
+      git config --global user.name "Buildkite";
+      git checkout master && git fetch && git pull --rebase;
+      npm version patch -m "[skip ci] Bumping version";
+      git push -u origin master;
+      git push -u origin master --tags;
+      npm publish;
+    agents:
+      queue: "node14"
+    depends_on:
+      - "test"
+    if: build.branch == "master"

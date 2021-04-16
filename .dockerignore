@@ -1,0 +1,52 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Buildkite dir
+.buildkite/
+
+# Coverage temp dir
+.nyc_output/
+coverage/
+
+# Dependency directories
+node_modules/
+
+# Git related
+.git/
+.githooks/
+.gitignore
+
+# JetBrains
+.idea/
+
+# Visual Code
+.vscode/
+
+# Buildkite CI
+.buildkite/
+
+# Gitlab CI
+.gitlab-ci.yml
+
+# Documentation files
+docs/
+imgs/
+
+# Kubernets files
+k8s/
+
+# Project files
+Dockerfile
+Makefile*
+README.md
+
+# Docker-compose
+docker-compose.yml
+
+# Dockerignore itself
+.dockerignore
