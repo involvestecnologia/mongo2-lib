@@ -1,14 +1,22 @@
 {
   "name": "@involves/mongodb-lib",
-  "version": "0.0.5",
-  "description": "",
+  "version": "0.0.6",
+  "description": "Easy way to integrate mongodb at express http request",
   "main": "index.js",
   "scripts": {
     "test": "mocha 'test/**/*.js' --recursive --timeout 5000 --exit",
     "coverage": "nyc npm run test"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.involvesapp.com/libraries/node/mongo-lib.git"
+  },
   "author": "Morelli",
   "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.involvesapp.com/libraries/node/mongo-lib/-/issues"
+  },
+  "homepage": "https://gitlab.involvesapp.com/libraries/node/mongo-lib",
   "dependencies": {
     "mongodb": "^3.6.6"
   },
