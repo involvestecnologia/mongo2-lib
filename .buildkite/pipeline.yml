@@ -28,7 +28,7 @@ steps:
       - "docker-compose down"
     agents:
       queue: "docker"
-  if: build.source != "schedule"
+    if: build.source != "schedule"
 
   - label: "Publish Library"
     key: "publish"
