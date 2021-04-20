@@ -3,6 +3,23 @@ env:
   DOCKER_BUILDKIT: 1
   
 steps:
+  - label: "Weekly check for updates"
+    key: "update"
+    command: >
+      npm install -g --no-audit npm-check-updates;
+      git checkout master && git fetch && git pull --rebase;
+      ncu -u;
+      npm install --legacy-peer-deps --no-audit;
+      npm test;
+      git add package.json package-lock.json;
+      git commit -m "updating dependencies";
+      git push -u origin master;
+    soft_fail:
+      - exit_status: 1
+    agents:
+      queue: "node14"
+    if: build.source == "schedule"
+
   - label: "Tests"
     key: "test"
     command:
@@ -11,6 +28,7 @@ steps:
       - "docker-compose down"
     agents:
       queue: "docker"
+  if: build.source != "schedule"
 
   - label: "Publish Library"
     key: "publish"
@@ -26,4 +44,4 @@ steps:
       queue: "node14"
     depends_on:
       - "test"
-    if: build.branch == "master"
+    if: build.source != "schedule" && build.branch == "master"
