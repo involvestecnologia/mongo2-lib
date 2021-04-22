@@ -9,7 +9,7 @@ module.exports = {
   ],
   extends: [
     'standard',
-    'mocha'
+    'plugin:mocha/recommended'
   ],
   parserOptions: {
     ecmaVersion: 12
