@@ -10,14 +10,16 @@ steps:
       git checkout master && git fetch && git pull --rebase;
       ncu -u;
       npm install --legacy-peer-deps --no-audit;
-      npm test;
+      docker-compose build --pull;
+      docker-compose run test;
+      docker-compose down;
       git add package.json package-lock.json;
       git commit -m "updating dependencies";
       git push -u origin master;
     soft_fail:
       - exit_status: 1
     agents:
-      queue: "node14"
+      queue: "docker"
     if: build.source == "schedule"
 
   - label: "Tests"
