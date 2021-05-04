@@ -1,18 +1,23 @@
 env:
   COMPOSE_DOCKER_CLI_BUILD: 1
   DOCKER_BUILDKIT: 1
+  PROJECT_NAME: mongodb-lib
   
 steps:
   - label: "Weekly check for updates"
     key: "update"
     command: >
-      npm install -g --no-audit npm-check-updates;
       git checkout master && git fetch && git pull --rebase;
-      ncu -u;
-      npm install --legacy-peer-deps --no-audit;
+      docker build --target=dependencies-update --tag=${PROJECT_NAME} .;
+      docker run --name=${PROJECT_NAME} ${PROJECT_NAME};
+      docker cp ${PROJECT_NAME}:/data/package.json .;
+      docker cp ${PROJECT_NAME}:/data/package-lock.json .;
+      docker rm -vf ${PROJECT_NAME};
       docker-compose build --pull;
       docker-compose run test;
       docker-compose down;
+      git config --global user.email "sdom@involves.com";
+      git config --global user.name "Buildkite";
       git add package.json package-lock.json;
       git commit -m "updating dependencies";
       git push -u origin master;

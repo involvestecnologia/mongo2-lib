@@ -1,5 +1,15 @@
+PROJECT_NAME = mongodb-lib
+
 export COMPOSE_DOCKER_CLI_BUILD = 1
 export DOCKER_BUILDKIT = 1
+
+.PHONY: dependencies-update
+dependencies-update:
+	docker build --target=dependencies-update --tag=$(PROJECT_NAME) .
+	docker run --name=$(PROJECT_NAME) $(PROJECT_NAME)
+	docker cp $(PROJECT_NAME):/data/package.json .
+	docker cp $(PROJECT_NAME):/data/package-lock.json .
+	docker rm -vf $(PROJECT_NAME)
 
 .PHONY: test
 test:
