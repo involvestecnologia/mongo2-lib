@@ -7,18 +7,17 @@ steps:
   - label: "Weekly check for updates"
     key: "update"
     command: >
+      git config --global user.email "sdom@involves.com";
+      git config --global user.name "Buildkite";
       git checkout master && git fetch && git pull --rebase;
       docker build --target=dependencies-update --tag=${PROJECT_NAME} .;
       docker run --name=${PROJECT_NAME} ${PROJECT_NAME};
       docker cp ${PROJECT_NAME}:/data/package.json .;
-      docker cp ${PROJECT_NAME}:/data/package-lock.json .;
       docker rm -vf ${PROJECT_NAME};
       docker-compose build --pull;
       docker-compose run test;
       docker-compose down;
-      git config --global user.email "sdom@involves.com";
-      git config --global user.name "Buildkite";
-      git add package.json package-lock.json;
+      git add package.json;
       git commit -m "updating dependencies";
       git push -u origin master;
     soft_fail:
@@ -43,12 +42,15 @@ steps:
       git config --global user.email "sdom@involves.com";
       git config --global user.name "Buildkite";
       git checkout master && git fetch && git pull --rebase;
-      npm version patch -m "[skip ci] Bumping version";
+      docker build --build-arg NPM_TOKEN=${NPM_TOKEN} --tag=${PROJECT_NAME} --target=publish .;
+      docker run --name=${PROJECT_NAME} ${PROJECT_NAME};
+      docker cp ${PROJECT_NAME}:/data/package.json .;
+      docker rm -vf ${PROJECT_NAME};
+      git add package.json;
+      git commit -m "[skip ci] Bumping version";
       git push -u origin master;
-      git push -u origin master --tags;
-      npm publish;
     agents:
-      queue: "node14"
+      queue: "docker"
     depends_on:
       - "test"
     if: build.source != "schedule" && build.branch == "master"
