@@ -18,16 +18,17 @@ RUN --mount=type=cache,uid=1000,gid=1000,target=/home/node/.npm \
     npm install --global --no-audit npm-check-updates
 RUN ncu -u  
 
+FROM base AS dependencies
+RUN --mount=type=cache,uid=1000,gid=1000,target=/home/node/.npm \
+    npm install --force --no-audit
+
 FROM base AS publish
 ARG NPM_TOKEN
 RUN npm config set git-tag-version false && \
     npm config set commit-hooks false
+COPY --chown=node:node . ./
 RUN npm version patch
 RUN npm publish
-
-FROM base AS dependencies
-RUN --mount=type=cache,uid=1000,gid=1000,target=/home/node/.npm \
-    npm install --force --no-audit
 
 # ---- Test/Cover ----
 FROM dependencies AS test
