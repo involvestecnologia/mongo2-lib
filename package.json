@@ -18,14 +18,14 @@
   },
   "homepage": "https://gitlab.involvesapp.com/libraries/node/mongo-lib",
   "dependencies": {
-    "mongodb": "^3.6.6"
+    "mongodb": "^3.6.8"
   },
   "devDependencies": {
     "chai": "^4.3.4",
     "chai-http": "^4.3.0",
-    "eslint": "^7.26.0",
+    "eslint": "^7.27.0",
     "eslint-config-standard": "^16.0.2",
-    "eslint-plugin-import": "^2.23.2",
+    "eslint-plugin-import": "^2.23.3",
     "eslint-plugin-mocha": "^8.1.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
