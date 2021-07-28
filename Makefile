@@ -25,3 +25,9 @@ test:
 .PHONY: clean
 clean:
 	docker-compose down
+
+.PHONY: coverage
+coverage: test
+	@rm -rf coverage
+	$(eval ID=$(shell docker ps -a | grep $(PROJECT_NAME)_test_run_ | sed 's/.*$(PROJECT_NAME)_test_run_//' | head -n 1))
+	docker cp $(PROJECT_NAME)_test_run_$(ID):/data/coverage ./

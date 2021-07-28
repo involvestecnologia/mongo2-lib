@@ -2,6 +2,7 @@ const assert = require('assert').strict
 const md5 = require('md5-file')
 const { ObjectID } = require('mongodb')
 const path = require('path')
+const fs = require('fs')
 
 const { MongoDatabase, MongoRepository } = require('../../index')
 
@@ -66,5 +67,42 @@ describe('Integration tests of MongoRepository', function () {
 
     const expectedMd5 = md5.sync(csv.path)
     assert.equal(resp.md5, expectedMd5)
+  })
+
+
+  it('verify download file', async function () {
+    const id = new ObjectID()
+    const csv = {
+      name: 'file.csv'
+    }
+    csv.path = path.join(path.resolve(__dirname, '..'), 'assets', csv.name)
+
+    await repository.storeFile(collection, id, csv.name, csv.path)
+
+    const pathFinal = path.join(path.resolve(__dirname, '..'), 'assets', 'tmp.csv')
+
+    await repository.downloadFile(collection, id, pathFinal)
+
+    assert.deepEqual(fs.existsSync(pathFinal), true)
+  })
+
+  it('download file should return file not found', async function () {
+    const id = new ObjectID()
+    const pathFinal = path.join(path.resolve(__dirname, '..'), 'assets', 'tmp.csv')
+
+    await assert.rejects(
+      async () => { await repository.downloadFile(collection, id, pathFinal) },
+      { name: 'Error', message: `FileNotFound: file ${id} was not found` }
+    )
+  })
+
+  it('download file should return no such file or directory', async function () {
+    const id = new ObjectID()
+    const pathFinal = path.join(path.resolve(__dirname, '..'), 'assets', 'tmp', 'tmp.csv')
+
+    await assert.rejects(
+      async () => { await repository.downloadFile(collection, id, pathFinal) },
+      { name: 'Error', message: `ENOENT: no such file or directory, open '${pathFinal}'` }
+    )
   })
 })

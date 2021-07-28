@@ -114,6 +114,20 @@ class MongoRepository {
       stream.on('error', reject)
     })
   }
+
+  downloadFile (bucketName, id, filePath) {
+    const bucket = new GridFSBucket(this.database, {
+      bucketName: bucketName
+    })
+
+    return new Promise((resolve, reject) => {
+      bucket.openDownloadStream(id)
+        .on('error', reject)
+        .pipe(fs.createWriteStream(filePath))
+        .on('finish', resolve)
+        .on('error', reject)
+    })
+  }
 }
 
 const _insertCreatedAt = (value) => {
