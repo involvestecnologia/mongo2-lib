@@ -90,23 +90,19 @@ describe('Integration tests of MongoRepository', function () {
     const id = new ObjectID()
     const pathFinal = path.join(path.resolve(__dirname, '..'), 'assets', 'tmp.csv')
 
-    try {
-      await repository.downloadFile(collection, id, pathFinal)
-      assert.fail('shoud return file not found')
-    } catch (error) {
-      assert.deepEqual(error.message, `FileNotFound: file ${id} was not found`)
-    }
+    await assert.rejects(
+      async () => { await repository.downloadFile(collection, id, pathFinal) },
+      { name: 'Error', message: `FileNotFound: file ${id} was not found` }
+    )
   })
 
   it('download file should return no such file or directory', async function () {
     const id = new ObjectID()
     const pathFinal = path.join(path.resolve(__dirname, '..'), 'assets', 'tmp', 'tmp.csv')
 
-    try {
-      await repository.downloadFile(collection, id, pathFinal)
-      assert.fail('shoud no such file or directory')
-    } catch (error) {
-      assert.deepEqual(error.message, `ENOENT: no such file or directory, open '${pathFinal}'`)
-    }
+    await assert.rejects(
+      async () => { await repository.downloadFile(collection, id, pathFinal) },
+      { name: 'Error', message: `ENOENT: no such file or directory, open '${pathFinal}'` }
+    )
   })
 })
