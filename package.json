@@ -1,6 +1,6 @@
 {
   "name": "@involves/mongodb-lib",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "Easy way to integrate mongodb at express http request",
   "main": "index.js",
   "scripts": {
