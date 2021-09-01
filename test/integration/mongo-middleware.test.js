@@ -8,13 +8,13 @@ const { MongoMiddleware } = require('../../index')
 chai.use(chaiHttp)
 
 describe('Integration tests of MongoMiddleware', function () {
-  it('should inject mongoRepository at the request', async function () {
+  it('should inject integrations.mongo at the request', async function () {
     const app = express()
-    app.use(MongoMiddleware.setMongoRepository)
+    app.use(MongoMiddleware.setMongoIntegration)
     const route = '/'
     app.get(route, (req, res) => {
       res.send('Hello World!')
-      assert(req.mongoRepository)
+      assert(req.integrations.mongo)
     })
 
     const res = await chai.request(app).get(route)

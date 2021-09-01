@@ -1,13 +1,14 @@
 
 const assert = require('assert').strict
 
-const { mongoService } = require('../../index')
+const { MongoService } = require('../../index')
 
-const MONGO_URL = process.env.MONGO_URL
+const { MONGO_URL } = process.env
 
 describe('Integration tests of MongoService', function () {
-    it('should return mongo repository', async function () {
-        const repository = await mongoService.getMongoRepository(MONGO_URL, 'test-database', 'test-project')
-        assert(repository)
-    })
+  it('should return mongo repository', async function () {
+    const repository = await MongoService.getMongoRepository(MONGO_URL, 'test-database', 'test-project')
+    assert(repository.database)
+    assert(repository.findById)
+  })
 })

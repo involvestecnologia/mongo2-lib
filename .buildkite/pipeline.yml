@@ -1,54 +1,78 @@
 env:
   COMPOSE_DOCKER_CLI_BUILD: 1
   DOCKER_BUILDKIT: 1
-  PROJECT_NAME: mongodb-lib
+  PROJECT_NAME: mysql2-lib
+  TEAM_EMAIL: sdom@involves.com
   
 steps:
-  - label: "Weekly check for updates"
+  - label: "Weekly dependencies update"
     key: "update"
-    command: >
-      git config --global user.email "sdom@involves.com";
-      git config --global user.name "Buildkite";
-      git checkout master && git fetch && git pull --rebase;
-      docker build --target=dependencies-update --tag=${PROJECT_NAME} .;
-      docker run --name=${PROJECT_NAME} ${PROJECT_NAME};
-      docker cp ${PROJECT_NAME}:/data/package.json .;
-      docker rm -vf ${PROJECT_NAME};
-      docker-compose build --pull;
-      docker-compose run test;
-      docker-compose down;
-      git add package.json;
-      git commit -m "updating dependencies";
-      git push -u origin master;
+    env:
+      SCRIPT_NAME: ci_run_tests.sh
+    command:
+      - git config --global user.email $$TEAM_EMAIL
+      - git config --global user.name "Buildkite"
+      - git checkout master && git fetch && git pull --rebase
+      - docker build --target=dependencies-update --tag=$$PROJECT_NAME .
+      - docker run --name=$$PROJECT_NAME $$PROJECT_NAME
+      - docker cp $$PROJECT_NAME:/data/package.json .
+      - docker rm -vf $$PROJECT_NAME
+      - chmod +x ./$$SCRIPT_NAME
+      - ./$$SCRIPT_NAME
+      - git add package.json
+      - git commit -m "[CI] Updating Dependencies (weekly)"
+      - git push -u origin master
     soft_fail:
       - exit_status: 1
     agents:
       queue: "docker"
     if: build.source == "schedule"
 
+  - label: "ESlint"
+    key: "lint"
+    command:
+      - docker build --tag=$$BUILDKITE_BUILD_ID --target=lint .
+      - docker run --rm $$BUILDKITE_BUILD_ID
+    agents:
+      queue: "docker"
+    if: build.source != "schedule"
+
+  - label: "Lint Dockerfile"
+    key: "hadolint"
+    env:
+      CONTAINER_NAME: "${BUILDKITE_PIPELINE_SLUG}-hado"
+    command: 
+      - "docker create --rm --name=$$CONTAINER_NAME hadolint/hadolint hadolint --ignore DL3006 --ignore DL3016 /Dockerfile"
+      - "docker cp Dockerfile $$CONTAINER_NAME:/Dockerfile"
+      - "docker start -i $$CONTAINER_NAME"
+    agents:
+      queue: "docker"
+    if: build.source != "schedule"
+
   - label: "Tests"
     key: "test"
+    env:
+      SCRIPT_NAME: ci_run_tests.sh
     command:
-      - "docker-compose build --pull"
-      - "docker-compose run test"
-      - "docker-compose down"
+      - chmod +x ./$$SCRIPT_NAME
+      - ./$$SCRIPT_NAME
     agents:
       queue: "docker"
     if: build.source != "schedule"
 
   - label: "Publish Library"
     key: "publish"
-    command: >
-      git config --global user.email "sdom@involves.com";
-      git config --global user.name "Buildkite";
-      git checkout master && git fetch && git pull --rebase;
-      docker build --build-arg NPM_TOKEN=${NPM_TOKEN} --tag=${PROJECT_NAME} --target=publish .;
-      docker run --name=${PROJECT_NAME} ${PROJECT_NAME};
-      docker cp ${PROJECT_NAME}:/data/package.json .;
-      docker rm -vf ${PROJECT_NAME};
-      git add package.json;
-      git commit -m "[skip ci] Bumping version";
-      git push -u origin master;
+    command:
+      - git config --global user.email $$TEAM_EMAIL
+      - git config --global user.name "Buildkite"
+      - git checkout master && git fetch && git pull --rebase
+      - docker build --build-arg NPM_TOKEN=$$NPM_TOKEN --tag=$$PROJECT_NAME --target=publish .
+      - docker run --name=$$PROJECT_NAME $$PROJECT_NAME
+      - docker cp $$PROJECT_NAME:/data/package.json .
+      - docker rm -vf $$PROJECT_NAME
+      - git add package.json
+      - git commit -m "[skip ci] Bumping version"
+      - git push -u origin master
     agents:
       queue: "docker"
     depends_on:

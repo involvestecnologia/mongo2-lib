@@ -1,0 +1,12 @@
+{
+    "plugins": [
+        "mocha"
+    ],
+    "extends": [
+        "plugin:mocha/recommended"
+    ],
+    "rules": {
+        "func-names": "off",
+        "prefer-arrow-callback": "off"
+    }
+}

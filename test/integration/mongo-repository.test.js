@@ -4,16 +4,17 @@ const { ObjectID } = require('mongodb')
 const path = require('path')
 const fs = require('fs')
 
-const { MongoDatabase, MongoRepository } = require('../../index')
+const { MongoConnection, MongoRepository } = require('../../index')
 
-const MONGO_URL = process.env.MONGO_URL
+const { MONGO_URL } = process.env
 const collection = 'test-collection'
 
 describe('Integration tests of MongoRepository', function () {
-  let connection, repository
+  let connection = {}
+  let repository = {}
 
   before(async function () {
-    connection = await MongoDatabase.getConnection(MONGO_URL, 'test', 'test-application')
+    connection = await MongoConnection.getConnection(MONGO_URL, 'test', 'test-application')
     repository = new MongoRepository(connection)
   })
 
@@ -38,8 +39,8 @@ describe('Integration tests of MongoRepository', function () {
   it('insertOne should store object with createdAt property', async function () {
     const expectedValue = {
       _id: new ObjectID(),
-      string: 'string',
-      number: 0
+      number: 0,
+      string: 'string'
     }
     await repository.insertOne(collection, expectedValue)
 
@@ -69,7 +70,6 @@ describe('Integration tests of MongoRepository', function () {
     assert.equal(resp.md5, expectedMd5)
   })
 
-
   it('verify download file', async function () {
     const id = new ObjectID()
     const csv = {
@@ -92,7 +92,7 @@ describe('Integration tests of MongoRepository', function () {
 
     await assert.rejects(
       async () => { await repository.downloadFile(collection, id, pathFinal) },
-      { name: 'Error', message: `FileNotFound: file ${id} was not found` }
+      { message: `FileNotFound: file ${id} was not found`, name: 'Error' }
     )
   })
 
@@ -102,7 +102,7 @@ describe('Integration tests of MongoRepository', function () {
 
     await assert.rejects(
       async () => { await repository.downloadFile(collection, id, pathFinal) },
-      { name: 'Error', message: `ENOENT: no such file or directory, open '${pathFinal}'` }
+      { message: `ENOENT: no such file or directory, open '${pathFinal}'`, name: 'Error' }
     )
   })
 })

@@ -1,22 +1,22 @@
-# @involves/mongodb-lib
+# @involves/mongodb2-lib
 
-[![Build status](https://badge.buildkite.com/58019b126a23ee15d39c35c6a38d98dd1b81413af146e01d4e.svg)](https://buildkite.com/involves/nodejs-lib-mongodb)
+[![Build status](https://badge.buildkite.com/46ae64a78b965614e9e43df84286836470104984ed1c4448f3.svg)](https://buildkite.com/involves/nodejs-lib-mongodb2)
 
 ## Install
 ```
-npm install @involves/mongodb-lib --save
+npm install @involves/mongodb2-lib --save
 ```
 
 ## Example usage
 
 ```javascript
     const express = require('express')
-    const { MongoMiddleware } = require('@involves/mongodb-lib')
+    const { MongoMiddleware } = require('@involves/mongodb2-lib')
 
     const app = express()
-    app.use(MongoMiddleware.setMongoRepository)
+    app.use(MongoMiddleware.setMongoIntegration)
     app.get('/:id', (req, res) => {
-        const record = await req.mongoRepository.findById('collection', req.query.id)
+        const record = await req.integrations.mongo.findById('collection', req.query.id)
         res.send(record)
     })
 ```

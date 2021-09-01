@@ -1,14 +1,14 @@
 const { ObjectID } = require('mongodb')
 
-const MongoDatabase = require('./src/mongo-database')
+const MongoConnection = require('./src/mongo-connection')
 const MongoMiddleware = require('./src/mongo-middleware')
 const MongoRepository = require('./src/mongo-repository')
-const mongoService = require('./src/mongo-service');
+const MongoService = require('./src/mongo-service')
 
 module.exports = {
-  MongoDatabase,
+  MongoConnection,
   MongoMiddleware,
   MongoRepository,
-  mongoService,
+  MongoService,
   ObjectID
 }

@@ -1,8 +1,7 @@
-'use strict'
 
 const { MongoClient } = require('mongodb')
 
-class MongoDatabase {
+class MongoConnection {
   /**
    * Represents a connection with a MongoDb
    * @param {string} url - IP or name to establish connection. Example {mongo-pod-name}:27017
@@ -15,22 +14,18 @@ class MongoDatabase {
   }
 }
 
-const _connect = async (dbConnection, url, appName) => {
+const _connect = (dbConnection, url, appName) => {
   if (dbConnection && dbConnection.isConnected()) return dbConnection
 
-  const connection = `mongodb://${url}`
-
-  dbConnection = await MongoClient.connect(
-    connection,
+  return MongoClient.connect(
+    `mongodb://${url}`,
     {
+      appname: appName,
       native_parser: true,
-      useUnifiedTopology: true,
       useNewUrlParser: true,
-      appname: appName
+      useUnifiedTopology: true
     }
   )
-
-  return dbConnection
 }
 
-module.exports = MongoDatabase
+module.exports = MongoConnection
