@@ -17,8 +17,13 @@ class MongoConnection {
 const _connect = (dbConnection, url, appName) => {
   if (dbConnection && dbConnection.isConnected()) return dbConnection
 
+  let urlString = url
+  if (urlString.indexOf('mongodb') === -1) {
+    urlString = `mongodb://${url}`
+  }
+
   return MongoClient.connect(
-    `mongodb://${url}`,
+    urlString,
     {
       appname: appName,
       native_parser: true,
