@@ -43,7 +43,6 @@ k8s/
 # Project files
 Dockerfile
 Makefile*
-README.md
 
 # Docker-compose
 docker-compose.yml

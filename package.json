@@ -1,6 +1,6 @@
 {
   "name": "@involves/mongodb2-lib",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Easy way to integrate mongodb at express http request",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   },
   "homepage": "https://gitlab.involvesapp.com/libraries/node/mongo-lib",
   "dependencies": {
-    "mongodb": "^4.1.3"
+    "mongodb": "^3.6.10"
   },
   "devDependencies": {
     "chai": "^4.3.4",
