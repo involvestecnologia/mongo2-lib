@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   mongo:
-    image: "mongo:3.6"
+    image: "mongo:5"
     container_name: mongo2-lib
     restart: always
     networks:
@@ -19,6 +19,7 @@ services:
     environment:
       - LOG_LEVEL=error
       - MONGO_URL=mongo2-lib:27017
+      - MONGO_DB=oauth-test
       - WAIT_HOSTS=mongo2-lib:27017
 
 networks:

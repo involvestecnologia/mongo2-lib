@@ -6,7 +6,7 @@ const fs = require('fs')
 
 const { MongoConnection, MongoRepository } = require('../../index')
 
-const { MONGO_URL } = process.env
+const { MONGO_DB, MONGO_URL } = process.env
 const collection = 'test-collection'
 
 describe('Integration tests of MongoRepository', function () {
@@ -14,7 +14,7 @@ describe('Integration tests of MongoRepository', function () {
   let repository = {}
 
   before(async function () {
-    connection = await MongoConnection.getConnection(MONGO_URL, 'test', 'test-application')
+    connection = await MongoConnection.getConnection(MONGO_URL, MONGO_DB, 'test-application')
     repository = new MongoRepository(connection)
   })
 
