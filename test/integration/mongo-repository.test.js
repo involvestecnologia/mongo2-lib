@@ -107,14 +107,14 @@ describe('Integration tests of MongoRepository', function () {
   })
 
   it('find by pagination', async function () {
-    const valueList = _createRegisters(170);
+    const valueList = _createRegisters(170)
 
-    await connection.collection(collection).insertMany(valueList);
+    await connection.collection(collection).insertMany(valueList)
 
-    const firstPage = await repository.findWithPagination(collection, {}, {skip: 0, limit:50});
-    const secondPage = await repository.findWithPagination(collection, {}, {skip: 50, limit:50});
-    const thirdPage = await repository.findWithPagination(collection, {}, {skip: 100, limit:50});
-    const lastPage = await repository.findWithPagination(collection, {}, {skip: 150, limit:50});
+    const firstPage = await repository.findWithPagination(collection, {}, { limit:50, skip: 0, })
+    const secondPage = await repository.findWithPagination(collection, {}, { limit:50 ,skip: 50 })
+    const thirdPage = await repository.findWithPagination(collection, {}, { limit:50, skip: 100 })
+    const lastPage = await repository.findWithPagination(collection, {}, { limit:50, skip: 150 })
 
     assert.equal(firstPage.items.length, 50)
     assert.equal(secondPage.items.length, 50)
@@ -123,15 +123,15 @@ describe('Integration tests of MongoRepository', function () {
   })
 })
 
-function _createRegisters(totalCount) {
-  const valueList = [];
+function _createRegisters (totalCount) {
+  const valueList = []
 
-  for (i = 0; i < totalCount; i++) {
+  for (var i = 0; i < totalCount; ++i) {
     valueList.push({
       _id: new ObjectID(),
       number: i
     })
   }
 
-  return valueList;
+  return valueList
 }
