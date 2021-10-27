@@ -32,7 +32,8 @@ class MongoRepository {
   }
 
   async findWithPagination (collection, filter, options) {
-    const aggregateQuery = [{
+    const aggregateQuery = [
+      {
       $facet: {
         data: [],
         totalCount: [
@@ -44,7 +45,8 @@ class MongoRepository {
           }
         ]
       }
-    }]
+    }
+  ]
 
     if (filter) {
       aggregateQuery[0].$facet.data.push({
@@ -64,12 +66,16 @@ class MongoRepository {
       aggregateQuery[0].$facet.data.push({ $skip: options.skip })
     }
 
-    const limit = options.limit ? options.limit : 10
+    let limit = 10
+
+    if(options.limit)
+      limit = options.limit;
 
     aggregateQuery[0].$facet.data.push({ $limit: limit })
 
     const resultDatabase = await this.database.collection(collection)
-      .aggregate(aggregateQuery).toArray()
+      .aggregate(aggregateQuery)
+      .toArray()
 
     return {
       items: resultDatabase[0].data,
