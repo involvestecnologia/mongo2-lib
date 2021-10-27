@@ -105,4 +105,33 @@ describe('Integration tests of MongoRepository', function () {
       { message: `ENOENT: no such file or directory, open '${pathFinal}'`, name: 'Error' }
     )
   })
+
+  it('find by pagination', async function () {
+    const valueList = _createRegisters(170);
+
+    await connection.collection(collection).insertMany(valueList);
+
+    const firstPage = await repository.findWithPagination(collection, {}, {skip: 0, limit:50});
+    const secondPage = await repository.findWithPagination(collection, {}, {skip: 50, limit:50});
+    const thirdPage = await repository.findWithPagination(collection, {}, {skip: 100, limit:50});
+    const lastPage = await repository.findWithPagination(collection, {}, {skip: 150, limit:50});
+
+    assert.equal(firstPage.items.length, 50)
+    assert.equal(secondPage.items.length, 50)
+    assert.equal(thirdPage.items.length, 50)
+    assert.equal(lastPage.items.length, 20)
+  })
 })
+
+function _createRegisters(totalCount) {
+  const valueList = [];
+
+  for (i = 0; i < totalCount; i++) {
+    valueList.push({
+      _id: new ObjectID(),
+      number: i
+    })
+  }
+
+  return valueList;
+}

@@ -31,22 +31,20 @@ class MongoRepository {
     return this.database.collection(collection).findOne(filter, options)
   }
 
-  async findWithPagination (collection, filter, fields, skip, limit = 10, sort) {
-    const aggregateQuery = [
-      {
-        $facet: {
-          data: [],
-          totalCount: [
-            {
-              $group: {
-                _id: null,
-                count: { $sum: 1 }
-              }
+  async findWithPagination (collection, filter, options) {
+    const aggregateQuery = [{
+      $facet: {
+        data: [],
+        totalCount: [
+          {
+            $group: {
+              _id: null,
+              count: { $sum: 1 }
             }
-          ]
-        }
+          }
+        ]
       }
-    ]
+    }]
 
     if (filter) {
       aggregateQuery[0].$facet.data.push({
@@ -54,23 +52,24 @@ class MongoRepository {
       })
     }
 
-    if (fields) {
-      aggregateQuery[0].$facet.data.push({ $project: fields })
+    if (options.fields) {
+      aggregateQuery[0].$facet.data.push({ $project: options.fields })
     }
 
-    if (sort) {
-      aggregateQuery[0].$facet.data.push({ $sort: sort })
+    if (options.sort) {
+      aggregateQuery[0].$facet.data.push({ $sort: options.sort })
     }
 
-    if (skip) {
-      aggregateQuery[0].$facet.data.push({ $skip: skip })
+    if (options.skip) {
+      aggregateQuery[0].$facet.data.push({ $skip: options.skip })
     }
+
+    const limit = options.limit ? options.limit : 10
 
     aggregateQuery[0].$facet.data.push({ $limit: limit })
 
     const resultDatabase = await this.database.collection(collection)
-      .aggregate(aggregateQuery)
-      .toArray()
+      .aggregate(aggregateQuery).toArray()
 
     return {
       items: resultDatabase[0].data,
