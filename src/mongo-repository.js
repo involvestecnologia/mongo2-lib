@@ -1,5 +1,3 @@
-'use strict'
-
 const fs = require('fs')
 const { GridFSBucket, ObjectID } = require('mongodb')
 
@@ -15,40 +13,40 @@ class MongoRepository {
 
   async deleteMany (collection, filter, options) {
     const databaseResult = await this.database.collection(collection).deleteMany(filter, options)
-    return !!databaseResult.value
+    return Boolean(databaseResult.value)
   }
 
-  async findById (collection, id, options) {
-    const result = await this.database.collection(collection).findOne({ _id: ObjectID(id) }, options)
-    return result
+  findById (collection, id, options) {
+    return this.database.collection(collection).findOne({ _id: ObjectID(id) }, options)
   }
 
   async findByIdAndUpdate (collection, id, fields, options = { returnOriginal: false }) {
-    fields = _insertLastUpdate(fields)
+    const datedField = _insertLastUpdate(fields)
 
-    const databaseResult = await this.database.collection(collection).findOneAndUpdate({ _id: ObjectID(id) }, { $set: fields }, options)
+    const databaseResult = await this.database.collection(collection).findOneAndUpdate({ _id: ObjectID(id) }, { $set: datedField }, options)
     return databaseResult.value
   }
 
-  async findOne (collection, filter, options) {
-    const result = await this.database.collection(collection).findOne(filter, options)
-    return result
+  findOne (collection, filter, options) {
+    return this.database.collection(collection).findOne(filter, options)
   }
 
-  async findWithPagination (collection, filter, options) {
-    const aggregateQuery = [{
-      $facet: {
-        data: [],
-        totalCount: [
-          {
-            $group: {
-              _id: null,
-              count: { $sum: 1 }
+  async findWithPagination (collection, filter, fields, skip, limit = 10, sort) {
+    const aggregateQuery = [
+      {
+        $facet: {
+          data: [],
+          totalCount: [
+            {
+              $group: {
+                _id: null,
+                count: { $sum: 1 }
+              }
             }
-          }
-        ]
+          ]
+        }
       }
-    }]
+    ]
 
     if (filter) {
       aggregateQuery[0].$facet.data.push({
@@ -56,24 +54,23 @@ class MongoRepository {
       })
     }
 
-    if (options.fields) {
-      aggregateQuery[0].$facet.data.push({ $project: options.fields })
+    if (fields) {
+      aggregateQuery[0].$facet.data.push({ $project: fields })
     }
 
-    if (options.sort) {
-      aggregateQuery[0].$facet.data.push({ $sort: options.sort })
+    if (sort) {
+      aggregateQuery[0].$facet.data.push({ $sort: sort })
     }
 
-    if (options.skip) {
-      aggregateQuery[0].$facet.data.push({ $skip: options.skip })
+    if (skip) {
+      aggregateQuery[0].$facet.data.push({ $skip: skip })
     }
-
-    const limit = options.limit ? options.limit : 10
 
     aggregateQuery[0].$facet.data.push({ $limit: limit })
 
     const resultDatabase = await this.database.collection(collection)
-      .aggregate(aggregateQuery).toArray()
+      .aggregate(aggregateQuery)
+      .toArray()
 
     return {
       items: resultDatabase[0].data,
@@ -82,10 +79,10 @@ class MongoRepository {
   }
 
   async insertOne (collection, value, options) {
-    value = _insertCreatedAt(value)
-    value = _insertLastUpdate(value)
+    let datedValue = _insertCreatedAt(value)
+    datedValue = _insertLastUpdate(value)
 
-    const databaseResult = await this.database.collection(collection).insertOne(value, options)
+    const databaseResult = await this.database.collection(collection).insertOne(datedValue, options)
     return databaseResult.ops[0]
   }
 
@@ -99,13 +96,13 @@ class MongoRepository {
     return databaseResult.ops
   }
 
-  async ping () {
-    return await this.database.command({ ping: 1 })
+  ping () {
+    return this.database.command({ ping: 1 })
   }
 
-  async storeFile (bucketName, id, fileName, filePath) {
+  storeFile (bucketName, id, fileName, filePath) {
     const bucket = new GridFSBucket(this.database, {
-      bucketName: bucketName
+      bucketName
     })
 
     const stream = fs.createReadStream(filePath)
@@ -119,7 +116,7 @@ class MongoRepository {
 
   downloadFile (bucketName, id, filePath) {
     const bucket = new GridFSBucket(this.database, {
-      bucketName: bucketName
+      bucketName
     })
 
     return new Promise((resolve, reject) => {
