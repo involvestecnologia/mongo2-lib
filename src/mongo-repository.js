@@ -34,13 +34,13 @@ class MongoRepository {
   async findWithPagination (collection, filter, options) {
     const aggregateQuery = [
       {
-      $facet: {
-        data: [],
-        totalCount: [
+        $facet: {
+          data: [],
+          totalCount: [
             {
-            $group: {
-              _id: null,
-              count: { $sum: 1 }
+              $group: {
+                _id: null,
+                count: { $sum: 1 }
               }
             }
           ]
@@ -68,7 +68,7 @@ class MongoRepository {
 
     let { limit } = options
 
-    if(limit === undefined) limit = 10
+    if (!limit) limit = 10
 
     aggregateQuery[0].$facet.data.push({ $limit: limit })
 

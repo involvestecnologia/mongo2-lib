@@ -111,7 +111,7 @@ describe('Integration tests of MongoRepository', function () {
 
     await connection.collection(collection).insertMany(valueList)
 
-    const firstPage = await repository.findWithPagination(collection, {}, { limit: 50, skip: 0, })
+    const firstPage = await repository.findWithPagination(collection, {}, { limit: 50, skip: 0 })
     const secondPage = await repository.findWithPagination(collection, {}, { limit: 50, skip: 50 })
     const thirdPage = await repository.findWithPagination(collection, {}, { limit: 50, skip: 100 })
     const lastPage = await repository.findWithPagination(collection, {}, { limit: 50, skip: 150 })
@@ -123,11 +123,11 @@ describe('Integration tests of MongoRepository', function () {
   })
 })
 
-function _createRegisters (totalCount) {
+const _createRegisters = (totalCount) => {
   const valueList = []
 
-  let registerId = 0;
-  for (registerId = 0; registerId < totalCount; registerId = registerId + 1) {
+  let registerId = 0
+  for (registerId = 0; registerId < totalCount; registerId += 1) {
     valueList.push({
       _id: new ObjectID(),
       number: registerId
