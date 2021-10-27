@@ -4,17 +4,16 @@ const { ObjectID } = require('mongodb')
 const path = require('path')
 const fs = require('fs')
 
-const { MongoConnection, MongoRepository } = require('../../index')
+const { MongoDatabase, MongoRepository } = require('../../index')
 
-const { MONGO_DB, MONGO_URL } = process.env
+const MONGO_URL = process.env.MONGO_URL
 const collection = 'test-collection'
 
 describe('Integration tests of MongoRepository', function () {
-  let connection = {}
-  let repository = {}
+  let connection, repository
 
   before(async function () {
-    connection = await MongoConnection.getConnection(MONGO_URL, MONGO_DB, 'test-application')
+    connection = await MongoDatabase.getConnection(MONGO_URL, 'test', 'test-application')
     repository = new MongoRepository(connection)
   })
 
@@ -39,8 +38,8 @@ describe('Integration tests of MongoRepository', function () {
   it('insertOne should store object with createdAt property', async function () {
     const expectedValue = {
       _id: new ObjectID(),
-      number: 0,
-      string: 'string'
+      string: 'string',
+      number: 0
     }
     await repository.insertOne(collection, expectedValue)
 
@@ -70,6 +69,7 @@ describe('Integration tests of MongoRepository', function () {
     assert.equal(resp.md5, expectedMd5)
   })
 
+
   it('verify download file', async function () {
     const id = new ObjectID()
     const csv = {
@@ -92,7 +92,7 @@ describe('Integration tests of MongoRepository', function () {
 
     await assert.rejects(
       async () => { await repository.downloadFile(collection, id, pathFinal) },
-      { message: `FileNotFound: file ${id} was not found`, name: 'Error' }
+      { name: 'Error', message: `FileNotFound: file ${id} was not found` }
     )
   })
 
@@ -102,7 +102,37 @@ describe('Integration tests of MongoRepository', function () {
 
     await assert.rejects(
       async () => { await repository.downloadFile(collection, id, pathFinal) },
-      { message: `ENOENT: no such file or directory, open '${pathFinal}'`, name: 'Error' }
+      { name: 'Error', message: `ENOENT: no such file or directory, open '${pathFinal}'` }
     )
   })
+
+  it('find by pagination', async function () {
+    const valueList = _createRegisters(170);
+
+    await connection.collection(collection).insertMany(valueList);
+
+    const firstPage = await repository.findWithPagination(collection, {}, {skip: 0, limit:50});
+    const secondPage = await repository.findWithPagination(collection, {}, {skip: 50, limit:50});
+    const thirdPage = await repository.findWithPagination(collection, {}, {skip: 100, limit:50});
+    const lastPage = await repository.findWithPagination(collection, {}, {skip: 150, limit:50});
+
+    assert.equal(firstPage.items.length, 50)
+    assert.equal(secondPage.items.length, 50)
+    assert.equal(thirdPage.items.length, 50)
+    assert.equal(lastPage.items.length, 20)
+  })
+
 })
+
+function _createRegisters(totalCount) {
+  const valueList = [];
+
+  for (i = 0; i < totalCount; i++) {
+    valueList.push({
+      _id: new ObjectID(),
+      number: i
+    })
+  }
+
+  return valueList;
+}
