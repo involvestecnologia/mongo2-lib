@@ -37,16 +37,16 @@ class MongoRepository {
       $facet: {
         data: [],
         totalCount: [
-          {
+            {
             $group: {
               _id: null,
               count: { $sum: 1 }
+              }
             }
-          }
-        ]
+          ]
+        }
       }
-    }
-  ]
+    ]
 
     if (filter) {
       aggregateQuery[0].$facet.data.push({
@@ -66,10 +66,9 @@ class MongoRepository {
       aggregateQuery[0].$facet.data.push({ $skip: options.skip })
     }
 
-    let limit = 10
+    let { limit } = options
 
-    if(options.limit)
-      limit = options.limit;
+    if(limit === undefined) limit = 10
 
     aggregateQuery[0].$facet.data.push({ $limit: limit })
 
