@@ -111,15 +111,26 @@ describe('Integration tests of MongoRepository', function () {
 
     await connection.collection(collection).insertMany(valueList)
 
-    const firstPage = await repository.findWithPagination(collection, {}, { limit: 50, skip: 0 })
-    const secondPage = await repository.findWithPagination(collection, {}, { limit: 50, skip: 50 })
-    const thirdPage = await repository.findWithPagination(collection, {}, { limit: 50, skip: 100 })
-    const lastPage = await repository.findWithPagination(collection, {}, { limit: 50, skip: 150 })
+    let resultPages = []
+
+    const firstPage = await repository.findWithPagination(collection, {}, { limit: 50, offset: 0 })
+    resultPages = resultPages.concat(firstPage.items)
+    const secondPage = await repository.findWithPagination(collection, {}, { limit: 50, offset: 1 })
+    resultPages = resultPages.concat(secondPage.items)
+    const thirdPage = await repository.findWithPagination(collection, {}, { limit: 50, offset: 2 })
+    resultPages = resultPages.concat(thirdPage.items)
+    const lastPage = await repository.findWithPagination(collection, {}, { limit: 50, offset: 3 })
+    resultPages = resultPages.concat(lastPage.items)
 
     assert.equal(firstPage.items.length, 50)
     assert.equal(secondPage.items.length, 50)
     assert.equal(thirdPage.items.length, 50)
     assert.equal(lastPage.items.length, 20)
+
+    let index = 0
+    for (index = 0; index < resultPages.length; index += 1) {
+      assert.equal(resultPages[index].number, index)
+    }
   })
 })
 

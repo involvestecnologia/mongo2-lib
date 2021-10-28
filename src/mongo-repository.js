@@ -62,13 +62,14 @@ class MongoRepository {
       aggregateQuery[0].$facet.data.push({ $sort: options.sort })
     }
 
-    if (options.skip) {
-      aggregateQuery[0].$facet.data.push({ $skip: options.skip })
-    }
-
     let { limit } = options
 
     if (!limit) limit = 10
+
+    if (options.offset) {
+      const skip = options.offset * limit;
+      aggregateQuery[0].$facet.data.push({ $skip: skip })
+    }
 
     aggregateQuery[0].$facet.data.push({ $limit: limit })
 
