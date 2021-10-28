@@ -105,4 +105,45 @@ describe('Integration tests of MongoRepository', function () {
       { message: `ENOENT: no such file or directory, open '${pathFinal}'`, name: 'Error' }
     )
   })
+
+  it('find by pagination', async function () {
+    const valueList = _createRegisters(170)
+
+    await connection.collection(collection).insertMany(valueList)
+
+    let resultPages = []
+
+    const firstPage = await repository.findWithPagination(collection, {}, { limit: 50, offset: 0 })
+    resultPages = resultPages.concat(firstPage.items)
+    const secondPage = await repository.findWithPagination(collection, {}, { limit: 50, offset: 1 })
+    resultPages = resultPages.concat(secondPage.items)
+    const thirdPage = await repository.findWithPagination(collection, {}, { limit: 50, offset: 2 })
+    resultPages = resultPages.concat(thirdPage.items)
+    const lastPage = await repository.findWithPagination(collection, {}, { limit: 50, offset: 3 })
+    resultPages = resultPages.concat(lastPage.items)
+
+    assert.equal(firstPage.items.length, 50)
+    assert.equal(secondPage.items.length, 50)
+    assert.equal(thirdPage.items.length, 50)
+    assert.equal(lastPage.items.length, 20)
+
+    let index = 0
+    for (index = 0; index < resultPages.length; index += 1) {
+      assert.equal(resultPages[parseInt(index, 10)].number, index)
+    }
+  })
 })
+
+const _createRegisters = (totalCount) => {
+  const valueList = []
+
+  let registerId = 0
+  for (registerId = 0; registerId < totalCount; registerId += 1) {
+    valueList.push({
+      _id: new ObjectID(),
+      number: registerId
+    })
+  }
+
+  return valueList
+}

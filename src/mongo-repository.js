@@ -31,7 +31,7 @@ class MongoRepository {
     return this.database.collection(collection).findOne(filter, options)
   }
 
-  async findWithPagination (collection, filter, fields, skip, limit = 10, sort) {
+  async findWithPagination (collection, filter, options) {
     const aggregateQuery = [
       {
         $facet: {
@@ -54,15 +54,20 @@ class MongoRepository {
       })
     }
 
-    if (fields) {
-      aggregateQuery[0].$facet.data.push({ $project: fields })
+    if (options.fields) {
+      aggregateQuery[0].$facet.data.push({ $project: options.fields })
     }
 
-    if (sort) {
-      aggregateQuery[0].$facet.data.push({ $sort: sort })
+    if (options.sort) {
+      aggregateQuery[0].$facet.data.push({ $sort: options.sort })
     }
 
-    if (skip) {
+    let { limit } = options
+
+    if (!limit) limit = 10
+
+    if (options.offset) {
+      const skip = options.offset * limit
       aggregateQuery[0].$facet.data.push({ $skip: skip })
     }
 
