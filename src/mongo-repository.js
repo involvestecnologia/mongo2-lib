@@ -67,7 +67,7 @@ class MongoRepository {
     if (!limit) limit = 10
 
     if (options.offset) {
-      const skip = options.offset * limit;
+      const skip = options.offset * limit
       aggregateQuery[0].$facet.data.push({ $skip: skip })
     }
 

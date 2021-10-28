@@ -129,7 +129,7 @@ describe('Integration tests of MongoRepository', function () {
 
     let index = 0
     for (index = 0; index < resultPages.length; index += 1) {
-      assert.equal(resultPages[index].number, index)
+      assert.equal(resultPages[parseInt(index)].number, index)
     }
   })
 })
