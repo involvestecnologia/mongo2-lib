@@ -69,7 +69,9 @@ class MongoRepository {
       .aggregate(aggregateQuery)
       .toArray()
 
-    const total = await this.database.collection(collection).find(filter).count()
+    const total = await this.database.collection(collection)
+      .find(filter)
+      .count()
 
     return {
       items: resultDatabase[0].data,

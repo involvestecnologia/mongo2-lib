@@ -138,7 +138,7 @@ describe('Integration tests of MongoRepository', function () {
 
     await connection.collection(collection).insertMany(valueList)
 
-    const results = await repository.findWithPagination(collection, { 'number': 55 }, { limit: 50, offset: 0 })
+    const results = await repository.findWithPagination(collection, { number: 55 }, { limit: 50, offset: 0 })
 
     assert.equal(results.total, 1)
     assert.equal(results.items[0].number, 55)
@@ -149,7 +149,7 @@ describe('Integration tests of MongoRepository', function () {
 
     await connection.collection(collection).insertMany(valueList)
 
-    const results = await repository.findWithPagination(collection, { 'number': 999 }, { limit: 50, offset: 0 })
+    const results = await repository.findWithPagination(collection, { number: 999 }, { limit: 50, offset: 0 })
 
     assert.equal(results.total, 0)
     assert.deepEqual(results.items, [])
