@@ -31,7 +31,7 @@ class MongoRepository {
     return this.database.collection(collection).findOne(filter, options)
   }
 
-  async findWithPagination (collection, filter, options) {
+  async findWithPagination (collection, filter = {}, options = {}) {
     const aggregateQuery = [
       {
         $facet: {
