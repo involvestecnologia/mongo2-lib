@@ -132,6 +132,28 @@ describe('Integration tests of MongoRepository', function () {
       assert.equal(resultPages[parseInt(index, 10)].number, index)
     }
   })
+
+  it('find by pagination with filter', async function () {
+    const valueList = _createRegisters(170)
+
+    await connection.collection(collection).insertMany(valueList)
+
+    const results = await repository.findWithPagination(collection, { number: 55 }, { limit: 50, offset: 0 })
+
+    assert.equal(results.total, 1)
+    assert.equal(results.items[0].number, 55)
+  })
+
+  it('find by pagination with no result', async function () {
+    const valueList = _createRegisters(170)
+
+    await connection.collection(collection).insertMany(valueList)
+
+    const results = await repository.findWithPagination(collection, { number: 999 }, { limit: 50, offset: 0 })
+
+    assert.equal(results.total, 0)
+    assert.deepEqual(results.items, [])
+  })
 })
 
 const _createRegisters = (totalCount) => {

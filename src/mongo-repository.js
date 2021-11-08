@@ -31,12 +31,19 @@ class MongoRepository {
     return this.database.collection(collection).findOne(filter, options)
   }
 
-  async findWithPagination (collection, filter, options) {
+  async findWithPagination (collection, filter = {}, options = {}) {
     const aggregateQuery = [
       {
         $facet: {
-          data: [],
+          data: [
+            {
+              $match: filter
+            }
+          ],
           totalCount: [
+            {
+              $match: filter
+            },
             {
               $group: {
                 _id: null,
@@ -47,12 +54,6 @@ class MongoRepository {
         }
       }
     ]
-
-    if (filter) {
-      aggregateQuery[0].$facet.data.push({
-        $match: filter
-      })
-    }
 
     if (options.fields) {
       aggregateQuery[0].$facet.data.push({ $project: options.fields })
@@ -79,7 +80,7 @@ class MongoRepository {
 
     return {
       items: resultDatabase[0].data,
-      total: resultDatabase[0].totalCount[0].count
+      total: resultDatabase[0].totalCount[0]?.count || 0
     }
   }
 
