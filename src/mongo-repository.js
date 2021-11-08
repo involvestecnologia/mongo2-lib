@@ -97,7 +97,7 @@ class MongoRepository {
       value = _insertCreatedAt(value)
       value = _insertLastUpdate(value)
     }
-    
+
     const databaseResult = await this.database.collection(collection).insertMany(valueList, options)
     return databaseResult.ops
   }
