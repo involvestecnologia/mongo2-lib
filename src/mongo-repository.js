@@ -35,16 +35,25 @@ class MongoRepository {
     const aggregateQuery = [
       {
         $facet: {
-          data: []
+          data: [
+            {
+              $match: filter
+            }
+          ],
+          totalCount: [
+            {
+              $match: filter
+            },
+            {
+              $group: {
+                _id: null,
+                count: { $sum: 1 }
+              }
+            }
+          ]
         }
       }
     ]
-
-    if (filter) {
-      aggregateQuery[0].$facet.data.push({
-        $match: filter
-      })
-    }
 
     if (options.fields) {
       aggregateQuery[0].$facet.data.push({ $project: options.fields })
@@ -69,13 +78,9 @@ class MongoRepository {
       .aggregate(aggregateQuery)
       .toArray()
 
-    const total = await this.database.collection(collection)
-      .find(filter)
-      .count()
-
     return {
       items: resultDatabase[0].data,
-      total
+      total: resultDatabase[0].totalCount[0]?.count || 0
     }
   }
 
