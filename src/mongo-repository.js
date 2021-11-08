@@ -35,15 +35,7 @@ class MongoRepository {
     const aggregateQuery = [
       {
         $facet: {
-          data: [],
-          totalCount: [
-            {
-              $group: {
-                _id: null,
-                count: { $sum: 1 }
-              }
-            }
-          ]
+          data: []
         }
       }
     ]
@@ -77,9 +69,11 @@ class MongoRepository {
       .aggregate(aggregateQuery)
       .toArray()
 
+    const total = await this.database.collection(collection).find(filter).count()
+
     return {
       items: resultDatabase[0].data,
-      total: resultDatabase[0].totalCount[0].count
+      total
     }
   }
 
