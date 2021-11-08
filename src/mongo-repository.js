@@ -95,13 +95,9 @@ class MongoRepository {
   async insertMany (collection, valueList, options) {
     for (let value of valueList) {
       value = _insertCreatedAt(value)
-      value = _insertLastUpdate(value);
+      value = _insertLastUpdate(value)
     }
-
-    let a;
-
-    a = 1;
-
+    
     const databaseResult = await this.database.collection(collection).insertMany(valueList, options)
     return databaseResult.ops
   }
