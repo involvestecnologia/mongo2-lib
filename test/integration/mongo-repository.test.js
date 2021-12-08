@@ -7,6 +7,7 @@ const fs = require('fs')
 const { MongoConnection, MongoRepository } = require('../../index')
 
 const { MONGO_DB, MONGO_URL } = process.env
+
 const collection = 'test-collection'
 
 describe('Integration tests of MongoRepository', function () {
@@ -49,6 +50,48 @@ describe('Integration tests of MongoRepository', function () {
     assert.deepEqual(result._id, expectedValue._id)
     assert.deepEqual(result.string, expectedValue.string)
     assert.deepEqual(result.number, expectedValue.number)
+    assert('createdAt' in result)
+  })
+
+  it('insertOrUpdateOne should save on mongo', async function () {
+    const expectedValue = {
+      _id: new ObjectID(),
+      number: 0,
+      string: 'string'
+    }
+    await repository.insertOrUpdateOne(collection, { _id: expectedValue._id }, expectedValue)
+
+    const result = await connection.collection(collection).findOne({})
+
+    assert.deepEqual(result._id, expectedValue._id)
+    assert.deepEqual(result.string, expectedValue.string)
+    assert.deepEqual(result.number, expectedValue.number)
+    assert('createdAt' in result)
+  })
+
+  it('insertOrUpdateOne should update on mongo', async function () {
+    const initialObject = {
+      _id: new ObjectID(),
+      number: 0,
+      string: 'string'
+    }
+
+    await repository.insertOne(collection, initialObject)
+
+    const finalObject = { ...initialObject }
+
+    const filter = { _id: initialObject._id }
+
+    finalObject.number = 2
+
+    await repository.insertOrUpdateOne(collection, filter, finalObject)
+
+    const result = await connection.collection(collection).findOne(filter)
+
+    assert.deepEqual(result._id, initialObject._id)
+    assert.deepEqual(result.string, initialObject.string)
+    assert.notDeepEqual(result.number, initialObject.number)
+    assert.deepEqual(result.number, finalObject.number)
     assert('createdAt' in result)
   })
 
