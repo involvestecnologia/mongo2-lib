@@ -29,7 +29,8 @@
         "no-invalid-this": "off",
         "no-underscore-dangle": "off",
         "no-magic-numbers": "off",
-        "security/detect-non-literal-fs-filename": "off"
+        "security/detect-non-literal-fs-filename": "off",
+        "no-undefined": "off"
     },
     "noInlineConfig": true
 }

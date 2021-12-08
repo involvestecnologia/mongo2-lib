@@ -92,6 +92,18 @@ class MongoRepository {
     return databaseResult.ops[0]
   }
 
+  async insertOrUpdateOne (collection, filter, value, options = {}) {
+    let datedValue = _insertCreatedAt(value)
+    datedValue = _insertLastUpdate(value)
+    options.upsert = true
+
+    const update = {
+      $set: datedValue
+    }
+
+    await this.database.collection(collection).updateOne(filter, update, options)
+  }
+
   async insertMany (collection, valueList, options) {
     for (let value of valueList) {
       value = _insertCreatedAt(value)
@@ -136,7 +148,10 @@ class MongoRepository {
 }
 
 const _insertCreatedAt = (value) => {
-  value.createdAt = new Date().toISOString()
+  if (value.createdAt === undefined) {
+    value.createdAt = new Date().toISOString()
+  }
+
   return value
 }
 
