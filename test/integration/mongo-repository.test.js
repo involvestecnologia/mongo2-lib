@@ -3,6 +3,7 @@ const md5 = require('md5-file')
 const { ObjectID } = require('mongodb')
 const path = require('path')
 const fs = require('fs')
+const Joi = require('joi')
 
 const { MongoConnection, MongoRepository } = require('../../index')
 
@@ -63,10 +64,14 @@ describe('Integration tests of MongoRepository', function () {
 
     const result = await connection.collection(collection).findOne({})
 
+    const schema = Joi.date().iso()
+      .required()
+
     assert.deepEqual(result._id, expectedValue._id)
     assert.deepEqual(result.string, expectedValue.string)
     assert.deepEqual(result.number, expectedValue.number)
-    assert('createdAt' in result)
+    assert(!schema.validate(result.createdAt).error)
+    assert(!schema.validate(result._lastUpdate).error)
   })
 
   it('insertOrUpdateOne should update on mongo', async function () {
@@ -84,15 +89,21 @@ describe('Integration tests of MongoRepository', function () {
 
     finalObject.number = 2
 
+    const resultAfterUpdate = await connection.collection(collection).findOne(filter)
+
     await repository.insertOrUpdateOne(collection, filter, finalObject)
 
     const result = await connection.collection(collection).findOne(filter)
+
+    const schema = Joi.date().iso()
+      .required()
 
     assert.deepEqual(result._id, initialObject._id)
     assert.deepEqual(result.string, initialObject.string)
     assert.notDeepEqual(result.number, initialObject.number)
     assert.deepEqual(result.number, finalObject.number)
-    assert('createdAt' in result)
+    assert.deepEqual(result.createdAt, resultAfterUpdate.createdAt)
+    assert(!schema.validate(result._lastUpdate).error)
   })
 
   it('ping should check db\'s connection', async function () {
