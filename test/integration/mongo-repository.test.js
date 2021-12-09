@@ -106,6 +106,34 @@ describe('Integration tests of MongoRepository', function () {
     assert(!schema.validate(result._lastUpdate).error)
   })
 
+  it('updateOne should update on mongo', async function () {
+    const initialObject = {
+      _id: new ObjectID(),
+      number: 0,
+      string: 'string'
+    }
+
+    const objectInsert = await repository.insertOne(collection, initialObject)
+
+    const filter = { _id: ObjectID(initialObject._id) }
+
+    const finalObject = {
+      number: 2
+    }
+
+    const result = await repository.updateOne(collection, filter, finalObject)
+
+    const schema = Joi.date().iso()
+      .required()
+
+    assert.deepEqual(result._id, objectInsert._id)
+    assert.deepEqual(result.string, objectInsert.string)
+    assert.notDeepEqual(result.number, objectInsert.number)
+    assert.deepEqual(result.number, finalObject.number)
+    assert.deepEqual(result.createdAt, objectInsert.createdAt)
+    assert(!schema.validate(result._lastUpdate).error)
+  })
+
   it('ping should check db\'s connection', async function () {
     const result = await repository.ping()
     assert.deepEqual(result, { ok: 1 })

@@ -114,6 +114,19 @@ class MongoRepository {
     return databaseResult.ops
   }
 
+  async updateOne (collection, filter, value, options = {}) {
+    const datedValue = _insertLastUpdate(value)
+
+    const element = {
+      $set: datedValue
+    }
+
+    options.returnOriginal = false
+
+    const databaseResult = await this.database.collection(collection).findOneAndUpdate(filter, element, options)
+    return databaseResult.value
+  }
+
   ping () {
     return this.database.command({ ping: 1 })
   }
