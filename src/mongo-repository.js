@@ -11,6 +11,11 @@ class MongoRepository {
     return databaseResult.deletedCount > 0
   }
 
+  async deleteOne (collection, filter, options = {}) {
+    const databaseResult = await this.database.collection(collection).deleteOne(filter, options)
+    return databaseResult.deletedCount > 0
+  }
+
   async deleteMany (collection, filter, options) {
     const databaseResult = await this.database.collection(collection).deleteMany(filter, options)
     return Boolean(databaseResult.value)

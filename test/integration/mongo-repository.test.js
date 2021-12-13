@@ -38,6 +38,34 @@ describe('Integration tests of MongoRepository', function () {
     assert.ifError(databaseResult)
   })
 
+  it('delete one should delele entity on mongo', async function () {
+    const initialObject = {
+      _id: new ObjectID(),
+      number: 0,
+      string: 'string'
+    }
+
+    await repository.insertOne(collection, initialObject)
+
+    const filter = { _id: initialObject._id }
+
+    const databaseResult = await repository.deleteOne(collection, filter)
+
+    assert(databaseResult)
+
+    const element = await repository.findOne(collection, filter)
+
+    assert.equal(element, null)
+  })
+
+  it('delete one should return false when doesnt find an element to delete', async function () {
+    const filter = { _id: new ObjectID() }
+
+    const databaseResult = await repository.deleteOne(collection, filter)
+
+    assert(!databaseResult)
+  })
+
   it('insertOne should store object with createdAt property', async function () {
     const expectedValue = {
       _id: new ObjectID(),
