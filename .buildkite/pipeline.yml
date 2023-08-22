@@ -62,18 +62,14 @@ steps:
   - label: "Publish Library"
     key: "publish"
     command:
-      - git config --global user.email $$TEAM_EMAIL
-      - git config --global user.name "Buildkite"
       - git checkout master && git fetch && git pull --rebase
-      - docker build --build-arg NPM_TOKEN=$$NPM_TOKEN --tag=$$BUILDKITE_BUILD_ID --target=publish .
-      - docker run --name=$$BUILDKITE_BUILD_ID $$BUILDKITE_BUILD_ID
-      - docker cp $$BUILDKITE_BUILD_ID:/data/package.json .
-      - docker rm -vf $$BUILDKITE_BUILD_ID
-      - git add package.json
-      - git commit -m "[skip ci] Bumping version"
-      - git push -u origin master
+      - git config --global user.email $${GIT_EMAIL}
+      - git config --global user.name $${GIT_USER}
+      - npm version patch -m "[skip ci] [CI] Bumping to %s"
+      - npm publish
+      - git push --tags -u origin master
     agents:
-      queue: "docker"
+      queue: "node16"
     depends_on:
       - "test"
     if: build.source != "schedule" && build.branch == "master"
