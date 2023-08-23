@@ -62,7 +62,6 @@ steps:
   - label: "Publish Library"
     key: "publish"
     command:
-      - env
       - git config --global user.email $$TEAM_EMAIL
       - git config --global user.name "Buildkite"
       - git checkout master && git fetch && git pull --rebase
