@@ -27,6 +27,7 @@ RUN --mount=type=cache,uid=1000,gid=1000,target=/home/node/.npm \
 
 FROM base AS publish
 ARG NPM_TOKEN
+RUN echo NPM_TOKEN
 RUN npm config set "@involvestecnologia:registry" "https://npm.pkg.github.com"
 # RUN npm login --registry=https://npm.pkg.github.com 
 RUN npm config set git-tag-version false && \
